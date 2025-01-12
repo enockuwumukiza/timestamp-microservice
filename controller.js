@@ -2,28 +2,28 @@
 const getTimestamp = (req, res) => {
     const { date } = req.params;
   
-    // If no date is provided, return the current timestamp
+    // If no date is provided, return the current Unix timestamp and UTC time
     if (!date) {
-      const now = new Date();
-      return res.json({ unix: now.getTime(), utc: now.toUTCString() });
+      const currentDate = new Date();
+      return res.json({ unix: currentDate.getTime(), utc: currentDate.toUTCString() });
     }
   
-    // Check if the date is a valid Unix timestamp (milliseconds since epoch)
+    // Check if the provided date is a valid Unix timestamp in milliseconds
     if (/^\d+$/.test(date)) {
       const unixDate = new Date(parseInt(date));
-      // Ensure the date is valid
-      if (!isNaN(unixDate)) {
-        return res.json({ unix: date, utc: unixDate.toUTCString() });
+      if (!isNaN(unixDate.getTime())) {
+        return res.json({ unix: unixDate.getTime(), utc: unixDate.toUTCString() });
       }
     }
   
-    // Check if the date is a valid UTC format (ISO 8601 string)
+    // Attempt to parse the provided date as a valid GMT/UTC date string
     const utcDate = new Date(date);
-    if (!isNaN(utcDate)) {
+    if (utcDate.toString() !== 'Invalid Date') {
       return res.json({ unix: utcDate.getTime(), utc: utcDate.toUTCString() });
     }
   
-    return res.status(400).json({ error: "Invalid date format" });
+    // If the date is invalid, return an error
+    return res.status(400).json({ error: "Invalid Date" });
   };
   
   module.exports = { getTimestamp };
